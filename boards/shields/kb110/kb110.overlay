@@ -1,0 +1,213 @@
+/*
+ * kb110 - wireless full-size keyboard (110 keys + EC11 encoder)
+ *
+ * Reverse-engineered from the KiCad project:
+ *   - Duplex (bi-directional) diode matrix: 6 row nets x 10 col nets, two
+ *     anti-parallel-diode switches per matrix cell.
+ *   - Scanned by the custom driver zmk,kscan-gpio-duplex with a 16-pass cycle:
+ *     each column driven while the rows are read (col->row switches, logical
+ *     rows 0-5), then each row driven while the columns are read (row->col
+ *     switches, logical rows 6-11). Three-switch sneak paths are suppressed
+ *     by the driver's cross-pass ghost filter.
+ *   - The EC11 push button is wired between Row1 and Col1 without a diode; it
+ *     is detected in the col-drive pass at RC(0,0) (the row-drive event is
+ *     suppressed via the skip-cells property).
+ *   - Encoder rotation: A = Pot-A (Pro Micro pad 24 / D10), B = Pot-B (pad 23 / D16).
+ */
+
+#include <dt-bindings/zmk/matrix_transform.h>
+#include <physical_layouts.dtsi> /* key_physical_attrs */
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,physical-layout = &kb110_layout;
+    };
+
+    encoder_sensor: encoder_sensor {
+        compatible = "alps,ec11";
+        a-gpios = <&pro_micro 10 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        b-gpios = <&pro_micro 16 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        steps = <80>;
+        status = "okay";
+    };
+
+    kscan0: kscan {
+        compatible = "zmk,kscan-gpio-duplex";
+        wakeup-source;
+
+        debounce-press-ms = <5>;
+        debounce-release-ms = <5>;
+        debounce-scan-period-ms = <1>;
+        poll-period-ms = <25>;
+
+        row-gpios
+            = <&pro_micro 14 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Row1 */
+            , <&pro_micro 15 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Row2 */
+            , <&pro_micro 18 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Row3 */
+            , <&pro_micro 19 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Row4 */
+            , <&pro_micro 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Row5 */
+            , <&pro_micro 21 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Row6 */
+            ;
+        col-gpios
+            = <&pro_micro 9 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col1 */
+            , <&pro_micro 8 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col2 */
+            , <&pro_micro 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col3 */
+            , <&pro_micro 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col4 */
+            , <&pro_micro 5 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col5 */
+            , <&pro_micro 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col6 */
+            , <&pro_micro 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col7 */
+            , <&pro_micro 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col8 */
+            , <&pro_micro 2 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col9 */
+            , <&pro_micro 3 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>   /* Col10 */
+            ;
+
+        /* Logical (row,col) pairs that carry no switch: the row-drive half of
+         * the encoder cell. Kept out so the driver does not emit events. */
+        skip-cells = <6 0>;
+    };
+
+    kb110_layout: kb110_layout {
+        compatible = "zmk,physical-layout";
+        display-name = "kb110";
+
+        transform = <&kb110_transform>;
+        kscan = <&kscan0>;
+
+        keys  //                         w    h      x      y  rot  rx  ry   (centi-units, 100 = 1u)
+            = <&key_physical_attrs 100 100 46 0 0 0 0>  // pos 0: ENC
+            , <&key_physical_attrs 100 100 150 0 0 0 0>  // pos 1: MX1
+            , <&key_physical_attrs 100 100 350 0 0 0 0>  // pos 2: MX2
+            , <&key_physical_attrs 100 100 450 0 0 0 0>  // pos 3: MX3
+            , <&key_physical_attrs 100 100 550 0 0 0 0>  // pos 4: MX4
+            , <&key_physical_attrs 100 100 650 0 0 0 0>  // pos 5: MX5
+            , <&key_physical_attrs 100 100 800 0 0 0 0>  // pos 6: MX6
+            , <&key_physical_attrs 100 100 900 0 0 0 0>  // pos 7: MX7
+            , <&key_physical_attrs 100 100 1000 0 0 0 0>  // pos 8: MX8
+            , <&key_physical_attrs 100 100 1100 0 0 0 0>  // pos 9: MX9
+            , <&key_physical_attrs 100 100 1250 0 0 0 0>  // pos 10: MX10
+            , <&key_physical_attrs 100 100 1350 0 0 0 0>  // pos 11: MX11
+            , <&key_physical_attrs 100 100 1450 0 0 0 0>  // pos 12: MX12
+            , <&key_physical_attrs 100 100 1550 0 0 0 0>  // pos 13: MX13
+            , <&key_physical_attrs 100 100 1675 0 0 0 0>  // pos 14: MX14
+            , <&key_physical_attrs 100 100 1775 0 0 0 0>  // pos 15: MX15
+            , <&key_physical_attrs 100 100 1875 0 0 0 0>  // pos 16: MX16
+            , <&key_physical_attrs 100 100 50 100 0 0 0>  // pos 17: MX17
+            , <&key_physical_attrs 100 100 150 100 0 0 0>  // pos 18: MX18
+            , <&key_physical_attrs 100 100 250 100 0 0 0>  // pos 19: MX19
+            , <&key_physical_attrs 100 100 350 100 0 0 0>  // pos 20: MX20
+            , <&key_physical_attrs 100 100 450 100 0 0 0>  // pos 21: MX21
+            , <&key_physical_attrs 100 100 550 100 0 0 0>  // pos 22: MX22
+            , <&key_physical_attrs 100 100 650 100 0 0 0>  // pos 23: MX23
+            , <&key_physical_attrs 100 100 750 100 0 0 0>  // pos 24: MX24
+            , <&key_physical_attrs 100 100 850 100 0 0 0>  // pos 25: MX25
+            , <&key_physical_attrs 100 100 950 100 0 0 0>  // pos 26: MX26
+            , <&key_physical_attrs 100 100 1050 100 0 0 0>  // pos 27: MX27
+            , <&key_physical_attrs 100 100 1150 100 0 0 0>  // pos 28: MX28
+            , <&key_physical_attrs 100 100 1250 100 0 0 0>  // pos 29: MX29
+            , <&key_physical_attrs 100 100 1350 100 0 0 0>  // pos 30: MX30
+            , <&key_physical_attrs 200 100 1500 100 0 0 0>  // pos 31: MX31
+            , <&key_physical_attrs 100 100 1675 100 0 0 0>  // pos 32: MX32
+            , <&key_physical_attrs 100 100 1775 100 0 0 0>  // pos 33: MX33
+            , <&key_physical_attrs 100 100 1875 100 0 0 0>  // pos 34: MX34
+            , <&key_physical_attrs 100 100 2000 100 0 0 0>  // pos 35: MX35
+            , <&key_physical_attrs 100 100 2100 100 0 0 0>  // pos 36: MX36
+            , <&key_physical_attrs 100 100 2200 100 0 0 0>  // pos 37: MX37
+            , <&key_physical_attrs 100 100 2300 100 0 0 0>  // pos 38: MX38
+            , <&key_physical_attrs 100 100 50 200 0 0 0>  // pos 39: MX39
+            , <&key_physical_attrs 150 100 175 200 0 0 0>  // pos 40: MX40
+            , <&key_physical_attrs 100 100 300 200 0 0 0>  // pos 41: MX41
+            , <&key_physical_attrs 100 100 400 200 0 0 0>  // pos 42: MX42
+            , <&key_physical_attrs 100 100 500 200 0 0 0>  // pos 43: MX43
+            , <&key_physical_attrs 100 100 600 200 0 0 0>  // pos 44: MX44
+            , <&key_physical_attrs 100 100 700 200 0 0 0>  // pos 45: MX45
+            , <&key_physical_attrs 100 100 800 200 0 0 0>  // pos 46: MX46
+            , <&key_physical_attrs 100 100 900 200 0 0 0>  // pos 47: MX47
+            , <&key_physical_attrs 100 100 1000 200 0 0 0>  // pos 48: MX48
+            , <&key_physical_attrs 100 100 1100 200 0 0 0>  // pos 49: MX49
+            , <&key_physical_attrs 100 100 1200 200 0 0 0>  // pos 50: MX50
+            , <&key_physical_attrs 100 100 1300 200 0 0 0>  // pos 51: MX51
+            , <&key_physical_attrs 100 100 1400 200 0 0 0>  // pos 52: MX52
+            , <&key_physical_attrs 125 200 1538 250 0 0 0>  // pos 53: MX53
+            , <&key_physical_attrs 100 100 1675 200 0 0 0>  // pos 54: MX54
+            , <&key_physical_attrs 100 100 1775 200 0 0 0>  // pos 55: MX55
+            , <&key_physical_attrs 100 100 1875 200 0 0 0>  // pos 56: MX56
+            , <&key_physical_attrs 100 100 2000 200 0 0 0>  // pos 57: MX57
+            , <&key_physical_attrs 100 100 2100 200 0 0 0>  // pos 58: MX58
+            , <&key_physical_attrs 100 100 2200 200 0 0 0>  // pos 59: MX59
+            , <&key_physical_attrs 100 200 2300 250 0 0 0>  // pos 60: MX60
+            , <&key_physical_attrs 100 100 50 300 0 0 0>  // pos 61: MX61
+            , <&key_physical_attrs 175 100 188 300 0 0 0>  // pos 62: MX62
+            , <&key_physical_attrs 100 100 325 300 0 0 0>  // pos 63: MX63
+            , <&key_physical_attrs 100 100 425 300 0 0 0>  // pos 64: MX64
+            , <&key_physical_attrs 100 100 525 300 0 0 0>  // pos 65: MX65
+            , <&key_physical_attrs 100 100 625 300 0 0 0>  // pos 66: MX66
+            , <&key_physical_attrs 100 100 725 300 0 0 0>  // pos 67: MX67
+            , <&key_physical_attrs 100 100 825 300 0 0 0>  // pos 68: MX68
+            , <&key_physical_attrs 100 100 925 300 0 0 0>  // pos 69: MX69
+            , <&key_physical_attrs 100 100 1025 300 0 0 0>  // pos 70: MX70
+            , <&key_physical_attrs 100 100 1125 300 0 0 0>  // pos 71: MX71
+            , <&key_physical_attrs 100 100 1225 300 0 0 0>  // pos 72: MX72
+            , <&key_physical_attrs 100 100 1325 300 0 0 0>  // pos 73: MX73
+            , <&key_physical_attrs 100 100 1425 300 0 0 0>  // pos 74: MX74
+            , <&key_physical_attrs 100 100 2000 300 0 0 0>  // pos 75: MX75
+            , <&key_physical_attrs 100 100 2100 300 0 0 0>  // pos 76: MX76
+            , <&key_physical_attrs 100 100 2200 300 0 0 0>  // pos 77: MX77
+            , <&key_physical_attrs 100 100 50 400 0 0 0>  // pos 78: MX78
+            , <&key_physical_attrs 125 100 162 400 0 0 0>  // pos 79: MX79
+            , <&key_physical_attrs 100 100 275 400 0 0 0>  // pos 80: MX80
+            , <&key_physical_attrs 100 100 375 400 0 0 0>  // pos 81: MX81
+            , <&key_physical_attrs 100 100 475 400 0 0 0>  // pos 82: MX82
+            , <&key_physical_attrs 100 100 575 400 0 0 0>  // pos 83: MX83
+            , <&key_physical_attrs 100 100 675 400 0 0 0>  // pos 84: MX84
+            , <&key_physical_attrs 100 100 775 400 0 0 0>  // pos 85: MX85
+            , <&key_physical_attrs 100 100 875 400 0 0 0>  // pos 86: MX86
+            , <&key_physical_attrs 100 100 975 400 0 0 0>  // pos 87: MX87
+            , <&key_physical_attrs 100 100 1075 400 0 0 0>  // pos 88: MX88
+            , <&key_physical_attrs 100 100 1175 400 0 0 0>  // pos 89: MX89
+            , <&key_physical_attrs 100 100 1275 400 0 0 0>  // pos 90: MX90
+            , <&key_physical_attrs 275 100 1462 400 0 0 0>  // pos 91: MX91
+            , <&key_physical_attrs 100 100 1775 400 0 0 0>  // pos 92: MX92
+            , <&key_physical_attrs 100 100 2000 400 0 0 0>  // pos 93: MX93
+            , <&key_physical_attrs 100 100 2100 400 0 0 0>  // pos 94: MX94
+            , <&key_physical_attrs 100 100 2200 400 0 0 0>  // pos 95: MX95
+            , <&key_physical_attrs 100 200 2300 450 0 0 0>  // pos 96: MX96
+            , <&key_physical_attrs 100 100 50 500 0 0 0>  // pos 97: MX97
+            , <&key_physical_attrs 125 100 162 500 0 0 0>  // pos 98: MX98
+            , <&key_physical_attrs 125 100 287 500 0 0 0>  // pos 99: MX99
+            , <&key_physical_attrs 125 100 412 500 0 0 0>  // pos 100: MX100
+            , <&key_physical_attrs 625 100 788 500 0 0 0>  // pos 101: MX101
+            , <&key_physical_attrs 125 100 1162 500 0 0 0>  // pos 102: MX102
+            , <&key_physical_attrs 125 100 1288 500 0 0 0>  // pos 103: MX103
+            , <&key_physical_attrs 125 100 1412 500 0 0 0>  // pos 104: MX104
+            , <&key_physical_attrs 125 100 1538 500 0 0 0>  // pos 105: MX105
+            , <&key_physical_attrs 100 100 1675 500 0 0 0>  // pos 106: MX106
+            , <&key_physical_attrs 100 100 1775 500 0 0 0>  // pos 107: MX107
+            , <&key_physical_attrs 100 100 1875 500 0 0 0>  // pos 108: MX108
+            , <&key_physical_attrs 200 100 2050 500 0 0 0>  // pos 109: MX109
+            , <&key_physical_attrs 100 100 2200 500 0 0 0>  // pos 110: MX110
+            ;
+    };
+
+    kb110_transform: keymap_transform {
+        compatible = "zmk,matrix-transform";
+        columns = <10>;
+        rows = <12>;
+        map = <
+        RC(0,0) RC(0,1) RC(6,1) RC(0,2) RC(6,2) RC(0,3) RC(6,3) RC(0,4)   // positions 0-7
+        RC(6,4) RC(0,5) RC(6,5) RC(0,6) RC(6,6) RC(0,7) RC(6,7) RC(0,8)   // positions 8-15
+        RC(6,8) RC(1,0) RC(7,0) RC(1,1) RC(7,1) RC(1,2) RC(7,2) RC(1,3)   // positions 16-23
+        RC(7,3) RC(1,4) RC(7,4) RC(1,5) RC(7,5) RC(1,6) RC(7,6) RC(1,7)   // positions 24-31
+        RC(7,7) RC(1,8) RC(7,8) RC(1,9) RC(7,9) RC(0,9) RC(6,9) RC(2,0)   // positions 32-39
+        RC(8,0) RC(2,1) RC(8,1) RC(2,2) RC(8,2) RC(2,3) RC(8,3) RC(2,4)   // positions 40-47
+        RC(8,4) RC(2,5) RC(8,5) RC(2,6) RC(8,6) RC(2,7) RC(8,7) RC(2,8)   // positions 48-55
+        RC(8,8) RC(2,9) RC(8,9) RC(3,9) RC(9,9) RC(9,0) RC(3,1) RC(9,1)   // positions 56-63
+        RC(3,2) RC(9,2) RC(3,3) RC(9,3) RC(3,4) RC(9,4) RC(3,5) RC(9,5)   // positions 64-71
+        RC(3,6) RC(9,6) RC(3,7) RC(9,7) RC(3,8) RC(9,8) RC(4,0) RC(10,0)   // positions 72-79
+        RC(4,1) RC(10,1) RC(4,2) RC(10,2) RC(4,3) RC(10,3) RC(4,4) RC(10,4)   // positions 80-87
+        RC(4,5) RC(10,5) RC(4,6) RC(10,6) RC(4,7) RC(10,7) RC(4,8) RC(10,8)   // positions 88-95
+        RC(4,9) RC(11,0) RC(5,0) RC(11,1) RC(5,1) RC(11,3) RC(5,4) RC(11,4)   // positions 96-103
+        RC(5,5) RC(11,5) RC(5,6) RC(11,7) RC(5,7) RC(11,8) RC(5,8)   // positions 104-110
+        >;
+    };
+};

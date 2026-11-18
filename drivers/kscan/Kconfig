@@ -1,0 +1,13 @@
+# Copyright (c) 2026 kb110 contributors
+# SPDX-License-Identifier: MIT
+
+DT_COMPAT_ZMK_KSCAN_GPIO_DUPLEX := zmk,kscan-gpio-duplex
+
+if KSCAN
+
+config ZMK_KSCAN_GPIO_DUPLEX
+    bool "Two-phase duplex GPIO matrix kscan driver (kb110)"
+    default $(dt_compat_enabled,$(DT_COMPAT_ZMK_KSCAN_GPIO_DUPLEX))
+    select ZMK_KSCAN_GPIO_DRIVER
+
+endif # KSCAN

@@ -1,0 +1,10 @@
+# This repo doubles as a ZMK config repository and a Zephyr module: it ships
+# the kb110 shield (boards/) and the custom duplex-matrix kscan driver
+# (drivers/, dts/).
+name: kb110
+build:
+  cmake: .
+  kconfig: Kconfig
+  settings:
+    board_root: .
+    dts_root: .

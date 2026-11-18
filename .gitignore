@@ -1,0 +1,13 @@
+# build outputs
+build/
+firmware/
+*.uf2
+*.bin
+*.hex
+*.elf
+*.map
+
+# editor / OS noise
+.vscode/
+.idea/
+.DS_Store

@@ -1,0 +1,290 @@
+/*
+ * kb110 default keymap
+ *
+ * Base layer: full US QWERTY on the ISO physical layout, including the
+ * navigation cluster and the numeric keypad. The five extra keys of the left
+ * macro column are mapped to copy / paste / cut / undo, the spare key next to
+ * Backspace to F13 and the spare key in the function row to Escape.
+ *
+ * FN layer (hold the right-most bottom modifier, `&mo 1`):
+ *   - Esc                -> reboot into the bootloader (for flashing)
+ *   - 1..0, -, =         -> F1..F12
+ *   - Ins/Home/PgUp      -> mute / previous track / volume up
+ *   - Del/End/PgDn       -> play-pause / next track / volume down
+ *   - macro column       -> BT profile 1-3 select, Undo key -> BT clear
+ *   - encoder press      -> mute
+ *
+ * The encoder rotates through volume up / volume down on both layers.
+ */
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+
+/ {
+    sensors {
+        compatible = "zmk,keymap-sensors";
+        sensors = <&encoder_sensor>;
+        triggers-per-rotation = <20>;
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        qwerty_layer {
+            display-name = "QWERTY";
+
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
+
+            bindings = <
+            /* function row (encoder press, Esc, F1-F12, PrtSc, ScrLk, Pause) */
+            &kp C_PP   // pos 0: ENC
+            &kp ESC   // pos 1: MX1
+            &kp F1   // pos 2: MX2
+            &kp F2   // pos 3: MX3
+            &kp F3   // pos 4: MX4
+            &kp F4   // pos 5: MX5
+            &kp F5   // pos 6: MX6
+            &kp F6   // pos 7: MX7
+            &kp F7   // pos 8: MX8
+            &kp F8   // pos 9: MX9
+            &kp F9   // pos 10: MX10
+            &kp F10   // pos 11: MX11
+            &kp F11   // pos 12: MX12
+            &kp F12   // pos 13: MX13
+            &kp PSCRN   // pos 14: MX14
+            &kp SLCK   // pos 15: MX15
+            &kp PAUSE_BREAK   // pos 16: MX16
+            /* number row (`-row, F13, Backspace, Ins/Home/PgUp, NumLock / * -) */
+            &kp GRAVE   // pos 17: MX17
+            &kp N1   // pos 18: MX18
+            &kp N2   // pos 19: MX19
+            &kp N3   // pos 20: MX20
+            &kp N4   // pos 21: MX21
+            &kp N5   // pos 22: MX22
+            &kp N6   // pos 23: MX23
+            &kp N7   // pos 24: MX24
+            &kp N8   // pos 25: MX25
+            &kp N9   // pos 26: MX26
+            &kp N0   // pos 27: MX27
+            &kp MINUS   // pos 28: MX28
+            &kp EQUAL   // pos 29: MX29
+            &kp F13   // pos 30: MX30
+            &kp BSPC   // pos 31: MX31
+            &kp INS   // pos 32: MX32
+            &kp HOME   // pos 33: MX33
+            &kp PG_UP   // pos 34: MX34
+            &kp KP_NUM   // pos 35: MX35
+            &kp KP_DIVIDE   // pos 36: MX36
+            &kp KP_MULTIPLY   // pos 37: MX37
+            &kp KP_MINUS   // pos 38: MX38
+            /* Q row (macro, Tab, QWERTYUIOP, [ ], ISO Enter, Del/End/PgDn, numpad 7 8) */
+            &kp C_AC_COPY   // pos 39: MX39
+            &kp TAB   // pos 40: MX40
+            &kp Q   // pos 41: MX41
+            &kp W   // pos 42: MX42
+            &kp E   // pos 43: MX43
+            &kp R   // pos 44: MX44
+            &kp T   // pos 45: MX45
+            &kp Y   // pos 46: MX46
+            &kp U   // pos 47: MX47
+            &kp I   // pos 48: MX48
+            &kp O   // pos 49: MX49
+            &kp P   // pos 50: MX50
+            &kp LBKT   // pos 51: MX51
+            &kp RBKT   // pos 52: MX52
+            &kp RET   // pos 53: MX53
+            &kp DEL   // pos 54: MX54
+            &kp END   // pos 55: MX55
+            &kp PG_DN   // pos 56: MX56
+            &kp KP_N7   // pos 57: MX57
+            &kp KP_N8   // pos 58: MX58
+            /* numpad 9 and + (2u tall) */
+            &kp KP_N9   // pos 59: MX59
+            &kp KP_PLUS   // pos 60: MX60
+            /* home row (macro, Caps, ASDFGHJKL, ; ' \, numpad 4 5 6) */
+            &kp C_AC_PASTE   // pos 61: MX61
+            &kp CLCK   // pos 62: MX62
+            &kp A   // pos 63: MX63
+            &kp S   // pos 64: MX64
+            &kp D   // pos 65: MX65
+            &kp F   // pos 66: MX66
+            &kp G   // pos 67: MX67
+            &kp H   // pos 68: MX68
+            &kp J   // pos 69: MX69
+            &kp K   // pos 70: MX70
+            &kp L   // pos 71: MX71
+            &kp SEMI   // pos 72: MX72
+            &kp SQT   // pos 73: MX73
+            &kp BSLH   // pos 74: MX74
+            &kp KP_N4   // pos 75: MX75
+            &kp KP_N5   // pos 76: MX76
+            &kp KP_N6   // pos 77: MX77
+            /* Z row (macro, LShift, ISO extra key, ZXCVBNM, , . /, RShift, Up, numpad 1 2 3) */
+            &kp C_AC_CUT   // pos 78: MX78
+            &kp LSHFT   // pos 79: MX79
+            &kp NUBS   // pos 80: MX80
+            &kp Z   // pos 81: MX81
+            &kp X   // pos 82: MX82
+            &kp C   // pos 83: MX83
+            &kp V   // pos 84: MX84
+            &kp B   // pos 85: MX85
+            &kp N   // pos 86: MX86
+            &kp M   // pos 87: MX87
+            &kp COMMA   // pos 88: MX88
+            &kp DOT   // pos 89: MX89
+            &kp FSLH   // pos 90: MX90
+            &kp RSHFT   // pos 91: MX91
+            &kp UP   // pos 92: MX92
+            &kp KP_N1   // pos 93: MX93
+            &kp KP_N2   // pos 94: MX94
+            &kp KP_N3   // pos 95: MX95
+            /* numpad Enter (2u tall) */
+            &kp KP_ENTER   // pos 96: MX96
+            /* bottom row (macro, Ctrl Gui Alt Space AltGui Ctrl Fn arrows, numpad 0 .) */
+            &kp C_AC_UNDO   // pos 97: MX97
+            &kp LCTRL   // pos 98: MX98
+            &kp LGUI   // pos 99: MX99
+            &kp LALT   // pos 100: MX100
+            &kp SPACE   // pos 101: MX101
+            &kp RALT   // pos 102: MX102
+            &kp RGUI   // pos 103: MX103
+            &kp RCTRL   // pos 104: MX104
+            &mo 1   // pos 105: MX105
+            &kp LEFT   // pos 106: MX106
+            &kp DOWN   // pos 107: MX107
+            &kp RIGHT   // pos 108: MX108
+            &kp KP_N0   // pos 109: MX109
+            &kp KP_DOT   // pos 110: MX110
+            >;
+        };
+
+        fn_layer {
+            display-name = "FN";
+
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
+
+            bindings = <
+            /* function row (encoder press, Esc, F1-F12, PrtSc, ScrLk, Pause) */
+            &kp C_MUTE   // pos 0: ENC
+            &bootloader   // pos 1: MX1
+            &trans   // pos 2: MX2
+            &trans   // pos 3: MX3
+            &trans   // pos 4: MX4
+            &trans   // pos 5: MX5
+            &trans   // pos 6: MX6
+            &trans   // pos 7: MX7
+            &trans   // pos 8: MX8
+            &trans   // pos 9: MX9
+            &trans   // pos 10: MX10
+            &trans   // pos 11: MX11
+            &trans   // pos 12: MX12
+            &trans   // pos 13: MX13
+            &trans   // pos 14: MX14
+            &trans   // pos 15: MX15
+            &trans   // pos 16: MX16
+            /* number row (`-row, F13, Backspace, Ins/Home/PgUp, NumLock / * -) */
+            &trans   // pos 17: MX17
+            &kp F1   // pos 18: MX18
+            &kp F2   // pos 19: MX19
+            &kp F3   // pos 20: MX20
+            &kp F4   // pos 21: MX21
+            &kp F5   // pos 22: MX22
+            &kp F6   // pos 23: MX23
+            &kp F7   // pos 24: MX24
+            &kp F8   // pos 25: MX25
+            &kp F9   // pos 26: MX26
+            &kp F10   // pos 27: MX27
+            &kp F11   // pos 28: MX28
+            &kp F12   // pos 29: MX29
+            &trans   // pos 30: MX30
+            &trans   // pos 31: MX31
+            &kp C_MUTE   // pos 32: MX32
+            &kp K_PREV   // pos 33: MX33
+            &kp C_VOL_UP   // pos 34: MX34
+            &trans   // pos 35: MX35
+            &trans   // pos 36: MX36
+            &trans   // pos 37: MX37
+            &trans   // pos 38: MX38
+            /* Q row (macro, Tab, QWERTYUIOP, [ ], ISO Enter, Del/End/PgDn, numpad 7 8) */
+            &bt BT_SEL 0   // pos 39: MX39
+            &trans   // pos 40: MX40
+            &trans   // pos 41: MX41
+            &trans   // pos 42: MX42
+            &trans   // pos 43: MX43
+            &trans   // pos 44: MX44
+            &trans   // pos 45: MX45
+            &trans   // pos 46: MX46
+            &trans   // pos 47: MX47
+            &trans   // pos 48: MX48
+            &trans   // pos 49: MX49
+            &trans   // pos 50: MX50
+            &trans   // pos 51: MX51
+            &trans   // pos 52: MX52
+            &trans   // pos 53: MX53
+            &kp K_PLAY_PAUSE   // pos 54: MX54
+            &kp K_NEXT   // pos 55: MX55
+            &kp C_VOL_DN   // pos 56: MX56
+            &trans   // pos 57: MX57
+            &trans   // pos 58: MX58
+            /* numpad 9 and + (2u tall) */
+            &trans   // pos 59: MX59
+            &trans   // pos 60: MX60
+            /* home row (macro, Caps, ASDFGHJKL, ; ' \, numpad 4 5 6) */
+            &bt BT_SEL 1   // pos 61: MX61
+            &trans   // pos 62: MX62
+            &trans   // pos 63: MX63
+            &trans   // pos 64: MX64
+            &trans   // pos 65: MX65
+            &trans   // pos 66: MX66
+            &trans   // pos 67: MX67
+            &trans   // pos 68: MX68
+            &trans   // pos 69: MX69
+            &trans   // pos 70: MX70
+            &trans   // pos 71: MX71
+            &trans   // pos 72: MX72
+            &trans   // pos 73: MX73
+            &trans   // pos 74: MX74
+            &trans   // pos 75: MX75
+            &trans   // pos 76: MX76
+            &trans   // pos 77: MX77
+            /* Z row (macro, LShift, ISO extra key, ZXCVBNM, , . /, RShift, Up, numpad 1 2 3) */
+            &bt BT_SEL 2   // pos 78: MX78
+            &trans   // pos 79: MX79
+            &trans   // pos 80: MX80
+            &trans   // pos 81: MX81
+            &trans   // pos 82: MX82
+            &trans   // pos 83: MX83
+            &trans   // pos 84: MX84
+            &trans   // pos 85: MX85
+            &trans   // pos 86: MX86
+            &trans   // pos 87: MX87
+            &trans   // pos 88: MX88
+            &trans   // pos 89: MX89
+            &trans   // pos 90: MX90
+            &trans   // pos 91: MX91
+            &trans   // pos 92: MX92
+            &trans   // pos 93: MX93
+            &trans   // pos 94: MX94
+            &trans   // pos 95: MX95
+            /* numpad Enter (2u tall) */
+            &trans   // pos 96: MX96
+            /* bottom row (macro, Ctrl Gui Alt Space AltGui Ctrl Fn arrows, numpad 0 .) */
+            &bt BT_CLR   // pos 97: MX97
+            &trans   // pos 98: MX98
+            &trans   // pos 99: MX99
+            &trans   // pos 100: MX100
+            &trans   // pos 101: MX101
+            &trans   // pos 102: MX102
+            &trans   // pos 103: MX103
+            &trans   // pos 104: MX104
+            &trans   // pos 105: MX105
+            &trans   // pos 106: MX106
+            &trans   // pos 107: MX107
+            &trans   // pos 108: MX108
+            &trans   // pos 109: MX109
+            &trans   // pos 110: MX110
+            >;
+        };
+    };
+};

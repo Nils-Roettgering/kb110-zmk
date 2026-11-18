@@ -1,0 +1,2 @@
+# Root Kconfig of the kb110 ZMK module.
+rsource "drivers/Kconfig"

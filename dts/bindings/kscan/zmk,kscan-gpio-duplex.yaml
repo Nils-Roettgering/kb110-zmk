@@ -1,0 +1,61 @@
+# Copyright (c) 2026 kb110 contributors
+# SPDX-License-Identifier: MIT
+
+description: |
+  Two-phase GPIO matrix ("duplex") keyboard scan controller.
+
+  This is used for matrices that place two anti-parallel-diode switches on
+  every (row, col) cell. The driver performs a scan cycle of 16 passes: it
+  drives each column and reads the rows (detecting the col->row switches),
+  then drives each row and reads the columns (detecting the row->col
+  switches). Events from the col-drive passes are reported with
+  (row, col) = (row-gpios index, col-gpios index), events from the row-drive
+  passes with (row-gpios index + len(row-gpios), col-gpios index).
+
+  Because the anti-parallel diodes make row<->col connections bidirectional,
+  three pressed switches can form a sneak path that pulls a fourth slot high.
+  The driver suppresses these ghosts by checking the other legs of the corner
+  within the same cycle.
+
+  All pins should be declared GPIO_ACTIVE_HIGH with GPIO_PULL_DOWN: the driver
+  drives the active (high) level on the output pin and reads the input pins
+  with pull-downs, so a closed switch reads as active.
+
+compatible: "zmk,kscan-gpio-duplex"
+
+include: kscan.yaml
+
+properties:
+  row-gpios:
+    type: phandle-array
+    required: true
+    description: GPIOs of the row nets (R1..R6, in this order).
+  col-gpios:
+    type: phandle-array
+    required: true
+    description: GPIOs of the column nets (C1..C10, in this order).
+  debounce-press-ms:
+    type: int
+    default: 5
+    description: Debounce time for key press in milliseconds.
+  debounce-release-ms:
+    type: int
+    default: 5
+    description: Debounce time for key release in milliseconds.
+  debounce-scan-period-ms:
+    type: int
+    default: 1
+    description: Time between full scan cycles while keys are pressed or debouncing.
+  poll-period-ms:
+    type: int
+    default: 25
+    description: Time between full scan cycles while idle. While idle the driver
+      also arms level interrupts on the reading pins of an alternating
+      all-drives pattern, so typical key presses trigger a scan immediately.
+  skip-cells:
+    type: array
+    required: false
+    description: |
+      Flat list of logical (row, col) pairs that must never report events.
+      Used for e.g. the diode-less push switch of a rotary encoder so that it
+      is only reported by the col-drive phase.
